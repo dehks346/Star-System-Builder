@@ -66,6 +66,22 @@ def starType(starMassSolarMass):
     elif 16 <= starMassSolarMass < 120:
         return "O"
     
+def starPicture(starType, mStar, kStar, gStar, fStar, aStar, bStar, oStar):
+    if starType == "M":
+        return mStar
+    elif starType == "K":
+        return kStar
+    elif starType == "G":
+        return gStar
+    elif starType == "F":
+        return fStar
+    elif starType == "A":
+        return aStar
+    elif starType == "B":
+        return bStar
+    elif starType == "O":
+        return oStar
+    
 
 class Star:
     def __init__(self):
@@ -95,6 +111,7 @@ class Star:
         self.starChromaticityRGB = starChromaticity(self.starMassSolarMass)
         self.starName = stellarName()
         self.starType = starType(self.starMassSolarMass)
+        self.starPicture = starPicture(self.starType, "static/mStar.png", "static/kStar.png", "static/gStar.png", "static/fStar.png", "static/aStar.png", "static/bStar.png", "static/oStar.png")
     
     def to_dict(self):
         return {
@@ -124,4 +141,5 @@ class Star:
             "StarChromaticityRGB": self.starChromaticityRGB,
             "starName": self.starName,
             "starType": self.starType,
+            "starPicture": self.starPicture
         }

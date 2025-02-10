@@ -72,6 +72,33 @@ section{
     border-radius: 20px;
 }   
 
+.system-diagram-container{
+    width: 90vw;
+    height: 400px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.system-diagram{
+    width: 100%;
+    height: 400px;
+    background-image: url('background.png');
+    background-repeat: repeat;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.system-diagram-star{
+    height: 100px;
+    width: 100px;
+    margin-right: 10vw;
+}
+.system-diagram-planet{
+    height: 30px;
+    width: 30px;
+    margin-right: 5vw;
+}
+
 
 .planet-container{
     height: 300px;

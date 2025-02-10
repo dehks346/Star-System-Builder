@@ -1,6 +1,6 @@
 #planet.py
 from .star import Star
-from .utils import HabitableZoneUnit, stellarName
+from .utils import HabitableZoneUnit, stellarName, solarSystemHabitable
 import random
 import math
 
@@ -72,14 +72,34 @@ def planetMass(planetType, planetRadiusEarthRadii):
     else:
         return 1
         
-def planetSurfaceGravity(planetMassKilogram, planetRadiusMeter, gravitationalConstant):
-    return gravitationalConstant * planetMassKilogram / planetRadiusMeter**2
-    
-def planetTemperature(starLuminositySolarLuminosity, planetOrbitalDistanceMeter):
+def planetSurfaceGravity(planetMassKilogram, planetRadiusMeter):
+    return  ((6.674e-11)* planetMassKilogram) / planetRadiusMeter**2
+
+def planetAlbedo(planetType):
+    albedo_dict = {
+        "Lava Planet": 0.15,  # Dark, absorbs heat
+        "Rocky Planet": 0.3,   # Similar to Earth
+        "Ocean Planet": 0.4,   # More reflective
+        "Gas Giant": 0.5,      # Reflects clouds
+        "Ice Planet": 0.7,    
+        "Gas Giant": 0.7,        
+        "Brown Dwarf": 0.9, 
+    }
+    return albedo_dict.get(planetType, 0.3)
+
+def planetTemperature(starLuminosityWatts, planetType, planetOrbitalDistanceMeter, planetAtmosphereComposition):
     if planetType == "Lava Planet":
         return random.uniform(1200, 3000)
-    else:
-        return ((starLuminositySolarLuminosity) / (16 * math.pi * 5.670374419e-8 * planetOrbitalDistanceMeter**2)) ** 0.25
+
+    albedo = planetAlbedo(planetType)
+    sigma = 5.67e-8  # Stefan-Boltzmann constant
+    
+    temperatureKelvin = (( (1 - albedo) * starLuminosityWatts) / (16 * math.pi * sigma * (planetOrbitalDistanceMeter**2)))**0.25
+
+    greenhouseMultiplier = 1.2 if "CO2" in planetAtmosphereComposition else 1.0
+    temperatureKelvin *= greenhouseMultiplier
+    
+    return temperatureKelvin
     
 def planetAtmosphereComposition(planetType):
     if planetType == "Lava Planet":
@@ -101,7 +121,6 @@ def planetAtmosphereComposition(planetType):
     elif planetType == "Brown Dwarf":
         return  ["H", "He"]
         
-    #def planetSurfaceComposition():
     
 def planetSurfaceWater(planetRadiusMeter, planetType, planetTemperatureKelvin):
         planetSurfaceAreaMeters = 4 * math.pi * planetRadiusMeter**2
@@ -116,6 +135,8 @@ def planetSurfaceWater(planetRadiusMeter, planetType, planetTemperatureKelvin):
             waterPercentage = 0.4
         else:
             waterPercentage = 0.0
+        print(waterPercentage)
+        print(planetSurfaceAreaMeters)
         
         return planetSurfaceAreaMeters * waterPercentage
         
@@ -123,10 +144,8 @@ def planetSurfaceWater(planetRadiusMeter, planetType, planetTemperatureKelvin):
     #def planetMoons():
     
 def planetOrbitalPeriod(planetOrbitalPositionAU, starMassKilogram):
-        semiMajorAxisMeters = planetOrbitalPositionAU * 149597870.7
-        periodSeconds = math.sqrt(4 * math.pi**2 * semiMajorAxisMeters**3 / (gravitationalConstant * starMassKilogram))
-        periodYears = periodSeconds / 31536000
-        return periodYears
+    orbitalPeriodEarthYears = planetOrbitalPositionAU**3
+    return math.sqrt(orbitalPeriodEarthYears)
         
 def planetDayLength(planetRadiusMeter, planetMassKilogram):
         if planetType == "Lava Planet":
@@ -175,100 +194,93 @@ def planetPicutre(brownDwarf, desertPlanet, gasGiant, iceGiant, miniNeptune, oce
 def planetDescription(planetType, planetTemperatureKelvin, planetSurfaceWater, planetAtmosphereComposition, planetSurfaceGravityEarthGravity, planetDayLength, planetOrbitalPeriod, planetAxialTilt, planetMassEarthMasses, planetRadiusEarthRadii):
     description = ""
     if planetType == "Lava Planet":
-        description = description + "This planets surface is mostly or enitrely covered by molten lava, there is molten volcanoes that spew lava and vast magma oceans on the surface. "
+        description = "The surface is mostly covered in molten lava. "
     elif planetType == "Rocky Planet":
-        description = description + "This planets surface is composed primarily of silicates, rocks or metals. It has a hard surface and a molten heavy metal core. On the surface youll find landforms like cliffs, valleys, volcanoes and craters. "
+        description = description + "The surface is primary made up of silicates, rocks and metals. There is natural formations like waterfall, mountains, and volcanoes."
     elif planetType == "Desert Planet":
-        description = description + "This planets surface is arid and very similar to a desert on earth. there is little to no natural precipitation and a very dry climate. "
+        description = description + "It is very dry and arid. There is practically no precipitation with a very dry climate. Youll find sand dunes, canyons, and mesas around. "
     elif planetType == "Ocean Planet":
-        description = description + "This planets surface is covered in water, the oceans are made from different fluids like lava, ammonia, or hydrocarbons . "
+        description = description + "The surface is vast oceans of water and other fluids like hydrocarbons and ammonia. In colder areas youll find icebergs. "
     elif planetType == "Super Earth":
-        description = description + "This planet can be rocky or gaseous, it is larger than earth but smaller than a gas giant."
+        description = description + "This planet is " + random.choice(["rocky ", "gaseous "])
     elif planetType == "Mini Neptune":
-        description = description + "This planet is gassy with a thick hydrogen-helium atmosphere, the planets density is lower than earths.. "
+        description = description + "The surface is less dense than earths, it has a thick atmosphere of hydrogen and helium and a small rocky core. "
     elif planetType == "Ice Giant":
-        description = description + "This planet is made up from elements heavier than hydrogen and helium, it has a thick atmosphere of water, ammonia and methane. "
+        description = description + "The planet is made up from a range of elements that are heavoer than hydrogen and helium, the atmosphere is thick."
     elif planetType == "Gas Giant":
         description = description + "This planet is made up from hydrogen and helium, it has a thick atmosphere and a small rocky core with no solid surface. "
     elif planetType == "Brown Dwarf":
-        description = description + "This planet is a substellar object that is not massive enough to sustain nuclear fusion of ordinary hydrogen into helium in its core. "
+        description = description + "A substellar object that is not massive enough to sustain nuclear fusion of ordinary hydrogen into helium in its core. "
     
     if planetTemperatureKelvin < 273:
-        description = description + "The average temperature on this planet is below freezing. "
+        description = description + "The temperature is below freezing. "
     elif 273 <= planetTemperatureKelvin <= 373:
-        description = description + "The average temperature on this planet is between freezing and boiling. "
+        description = description + "The temperature here is habitable. "
     elif planetTemperatureKelvin > 373:
-        description = description + "The average temperature on this planet is above boiling. "
+        description = description + "The temperature is boiling hot, survival of life would be very difficult. "
     elif planetTemperatureKelvin > 1000:
-        description = description + "The average temperature on this planet is extremely hot. "
+        description = description + "The temperature is extremely hot, survival of life would be impossible. "
     
     if planetSurfaceWater > 0:
-        description = description + "This planet has water on its surface. "
+        description = description + "The oceans are little to nothing. "
     elif planetSurfaceWater > 25:
-        description = description + "This planet has a lot of water on its surface. "
+        description = description + "there are large oceans. "
     elif planetSurfaceWater > 50:
-        description = description + "This planet is covered in water. "
+        description = description + "there is huge oceans. "
     elif planetSurfaceWater > 75:
-        description = description + "This planet is mostly water. "
+        description = description + "Water covers most of the planet. "
     
     if planetAtmosphereComposition == ["CO2", "SO2", "H2O"]:
-        description = description + "The atmosphere on this planet is composed of carbon dioxide, sulfur dioxide and water vapor. "
+        description = description + "The atmosphere is composed of carbon dioxide, sulfur dioxide and water vapor. "
     elif planetAtmosphereComposition == ["CO2", "O2", "N2"]:
-        description = description + "The atmosphere on this planet is composed of carbon dioxide, oxygen and nitrogen. "
+        description = description + "The atmosphere is composed of carbon dioxide, oxygen and nitrogen. "
     elif planetAtmosphereComposition == ["CO2", "O2"]:
-        description = description + "The atmosphere on this planet is composed of carbon dioxide and oxygen. "
+        description = description + "The atmosphere is composed of carbon dioxide and oxygen. "
     elif planetAtmosphereComposition == ["H20", "O2", "N2"]:
-        description = description + "The atmosphere on this planet is composed of water vapor, oxygen and nitrogen. "
+        description = description + "The atmosphere is composed of water vapor, oxygen and nitrogen. "
     elif planetAtmosphereComposition == ["CO2", "N2", "O2"]:
-        description = description + "The atmosphere on this planet is composed of carbon dioxide, nitrogen and oxygen. "
+        description = description + "The atmosphere is composed of carbon dioxide, nitrogen and oxygen. "
     elif planetAtmosphereComposition == ["H2", "He", "CH4"]:
-        description = description + "The atmosphere on this planet is composed of hydrogen, helium and methane. "
+        description = description + "The atmosphere is composed of hydrogen, helium and methane. "
     elif planetAtmosphereComposition == ["H20", "CH4", "NH3"]:
-        description = description + "The atmosphere on this planet is composed of water vapor, methane and ammonia. "
+        description = description + "The atmosphere is composed of water vapor, methane and ammonia. "
     
     if planetSurfaceGravityEarthGravity < 0.5:
-        description = description + "The surface gravity on this planet is very low. "
+        description = description + "The surface gravity is very low. "
     elif 0.5 <= planetSurfaceGravityEarthGravity <= 1.5:
-        description = description + "The surface gravity on this planet is similar to earth. "
+        description = description + "The surface gravity is similar to earth. "
     elif planetSurfaceGravityEarthGravity > 1.5:
-        description = description + "The surface gravity on this planet is very high. "
+        description = description + "The surface gravity is very high. "
     
     if planetDayLength < 24:
-        description = description + "The day length on this planet is very short. "
+        description = description + "The day length is very short. "
     elif 24 <= planetDayLength <= 48:
-        description = description + "The day length on this planet is similar to earth. "
+        description = description + "The day length is similar to earth. "
     elif planetDayLength > 48:
-        description = description + "The day length on this planet is very long. "
+        description = description + "The day length is very long. "
     
     if planetOrbitalPeriod < 365:
-        description = description + "The orbital period on this planet is very short. "
+        description = description + "The orbital period is very short. "
     elif 365 <= planetOrbitalPeriod <= 730:
-        description = description + "The orbital period on this planet is similar to earth. "
+        description = description + "The orbital period is similar to earth. "
     elif planetOrbitalPeriod > 730:
-        description = description + "The orbital period on this planet is very long. "
+        description = description + "The orbital period is very long. "
         
     if planetAxialTilt < 30:
-        description = description + "The axial tilt on this planet is very low. "
+        description = description + "The seaons are standard "
     elif 30 <= planetAxialTilt <= 60:
-        description = description + "The axial tilt on this planet is similar to earth. "
+        description = description + "The seasons are extreme. "
     elif planetAxialTilt > 60:
-        description = description + "The axial tilt on this planet is very high. "
-    
-    if planetMassEarthMasses < 1:
-        description = description + "The mass of this planet is very low. "
-    elif 1 <= planetMassEarthMasses <= 5:
-        description = description + "The mass of this planet is similar to earth. "
-    elif planetMassEarthMasses > 5:
-        description = description + "The mass of this planet is very high. "
-    
-    if planetRadiusEarthRadii < 1:
-        description = description + "The radius of this planet is very low. "
-    elif 1 <= planetRadiusEarthRadii <= 5:
-        description = description + "The radius of this planet is similar to earth. "
-    elif planetRadiusEarthRadii > 5:
-        description = description + "The radius of this planet is very high. "
-    
+        description = description + "The seasons are very extreme. "
+
     return description
+
+def Habitable(orbitalSpacingList, habitableZoneInner, habitableZoneOuter, solarSystemHabitableV):
+        if habitableZoneInner < orbitalSpacingList < habitableZoneOuter:
+            solarSystemHabitableV = True
+            return True
+        else:
+            return False
 
 class Planet:
         
@@ -277,8 +289,10 @@ class Planet:
         self.star = star
         
         self.planetOrbitalPositionAU = allocateOrbitalPosition(solarSystem)
+        self.planetOrbitalPositionMeter = self.planetOrbitalPositionAU * 1.496e11
         self.HZU = HabitableZoneUnit(solarSystem.habitableZoneInnerAU, self.planetOrbitalPositionAU)
         self.planetType = planetType(self.HZU)
+        self.planetAtmosphereComposition = planetAtmosphereComposition(self.planetType)
         self.planetRadiusEarthRadii = planetRadius(self.planetType)
         self.planetRadiusSolarRadii = self.planetRadiusEarthRadii * 6371 / 695700
         self.planetRadiusMeter = self.planetRadiusSolarRadii * 695700000
@@ -294,20 +308,19 @@ class Planet:
         self.planetMassKilogram = self.planetMassEarthMasses * 5.972e24
         self.planetMassPound = self.planetMassKilogram * 2.20462
         self.planetMassTonne = self.planetMassKilogram / 1000
-        self.planetSurfaceGravity = planetSurfaceGravity(self.planetMassKilogram, self.planetRadiusMeter, gravitationalConstant)
+        self.planetSurfaceGravity = planetSurfaceGravity(self.planetMassKilogram, self.planetRadiusMeter)
         self.planetSurfaceGravityEarthGravity = self.planetSurfaceGravity/9.8
-        self.planetTemperatureKelvin = planetTemperature(self.star.starLuminositySolarLuminosity, self.planetOrbitalPositionAU)
+        self.planetTemperatureKelvin = planetTemperature(self.star.starLuminosityWatts, self.planetType, self.planetOrbitalPositionMeter, self.planetAtmosphereComposition) 
         self.planetTemperatureCelsius = self.planetTemperatureKelvin - 273.15
         self.planetTemperatureFahrenheit = (self.planetTemperatureCelsius * 9/5) + 32
-        self.planetAtmosphereComposition = planetAtmosphereComposition(self.planetType)
-        self.planetSurfaceGravity = planetSurfaceGravity(self.planetMassKilogram, self.planetRadiusMeter, gravitationalConstant)
         self.planetAxialTilt = planetAxialTilt(self.planetType)
         self.planetOrbitalPeriod = planetOrbitalPeriod(self.planetOrbitalPositionAU, self.star.starMassKilogram)
         self.planetDayLength = planetDayLength(self.planetRadiusMeter, self.planetMassKilogram)
         self.planetSurfaceWater = planetSurfaceWater(self.planetRadiusMeter, self.planetType, self.planetTemperatureKelvin)
-        self.planetPicutre = planetPicutre("/static/brownDwarf.jpg", "/static/desertPlanet.jpg", "/static/gasGiant.jpg", "/static/iceGiant.jpg", "/static/miniNeptune.jpg", "/static/oceanPlanet.jpg", "/static/rockyPlanet.jpg", "/static/superEarth.jpg", "/static/lavaPlanet.jpg",self.planetType)
+        self.planetPicutre = planetPicutre("/static/brownDwarf.png", "/static/desertPlanet.png", "/static/gasGiant.png", "/static/iceGiant.png", "/static/miniNeptune.png", "/static/oceanPlanet.png", "/static/rockyPlanet.png", "/static/superEarth.png", "/static/lavaPlanet.png",self.planetType)
         self.planetDescription = planetDescription(self.planetType, self.planetTemperatureKelvin, self.planetSurfaceWater, self.planetAtmosphereComposition, self.planetSurfaceGravityEarthGravity, self.planetDayLength, self.planetOrbitalPeriod, self.planetAxialTilt, self.planetMassEarthMasses, self.planetRadiusEarthRadii)
         self.planetName = stellarName()
+        self.planetHabitable = Habitable(self.planetOrbitalPositionAU, self.solarSystem.habitableZoneInnerAU, self.solarSystem.habitableZoneOuterAU, solarSystemHabitable)
         
     def to_dict(self):
         return {
@@ -344,6 +357,7 @@ class Planet:
             "planetPicture": self.planetPicutre,
             "planetDescription": self.planetDescription,
             "planetName": self.planetName,
+            "planetHabitable": self.planetHabitable,
         }
         
     

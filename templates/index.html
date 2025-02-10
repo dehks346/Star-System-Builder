@@ -16,17 +16,27 @@
     <section>
         <div class="solar-system-container">
             <div class="top">
-                <h3>Solar System Name</h3>
+                <h3>The {{ solarSystem['systemName']}} System, Habitable? {{ solarSystem['solarSystemHabitable']}}</h3>
             </div>
             <div class="bottom">
                 <h3>Number of Planets: {{ solarSystem['numberOfPlanets']}} </h3> <h3>Orbital Limit: {{ solarSystem["orbitalOuterLimitAU"]}}</h3>
             </div>
         </div>
+        <div class="system-diagram-container">
+            <div class="system-diagram">
+                <img src="{{ star['starPicture']}}" alt="" class="system-diagram-star">
+                {% for planet in planet_data %}
+                <img src="{{ planet['planetPicture']}}" class="planet-image system-diagram-planet" alt="">
+                {% endfor %}
+                
+            </div>
+
+        </div>
     </section>
     <section class="star-planet-container">
         <div class="planet-container">
             <div class="planet-image-container">
-                <img src="/static/star.jpg" class="planet-image" alt="">
+                <img src="{{ star['starPicture']}}" class="planet-image" alt="">
             </div>
             <div class="planet-stats-container">
                 <h3>Star Name: {{ star['starName']}} </h3>
@@ -61,10 +71,11 @@
                 <h3>Planet Temperature: {{ planet['planetTemperatureCelsius']}} °C</h3>
                 <h3>Planet Atmospheric Composition: {{ planet['planetAtmosphereComposition']}} </h3>
                 <h3>Planet Axial Tilt: {{ planet['planetAxialTilt']}}°</h3>
-                <h3>Planet Orbital Period: {{ planet['planetOrbitalPeriod']}}</h3>
-                <h3>Planet Orbital Distance: {{ planet['planetOrbitalPosition']}} AU</h3>
+                <h3>Planet Orbital Period: {{ planet['planetOrbitalPeriod']}} earth years</h3>
+                <h3>Planet Orbital Distance: {{ planet['planetOrbitalPositionAU']}} AU</h3>
                 <h3>Planet Day Length: {{ planet['planetDayLength']}} hours</h3>
                 <h3>Planet Surface Water: {{ planet['planetSurfaceWater']}}%</h3>
+                <h3>Planet Habitable: {{ planet['planetHabitable'] }}</h3>
         </div>
         <div class="planet-description-container">
             <h3>

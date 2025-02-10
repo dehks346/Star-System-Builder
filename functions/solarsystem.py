@@ -2,6 +2,7 @@
 import math
 from .star import Star
 from .planet import Planet
+from .utils import stellarName, solarSystemHabitable
 import random
 
 def habitableZoneInner(starLuminositySolarLuminositys):
@@ -22,20 +23,21 @@ def numberOfPlanets(orbitalInnerLimit, orbitalOuterLimit):
     return max(1, min(12,round(baseNumber + offset, 0)))
 
 def orbitalSpacing(orbitalInnerLimit, orbitalOuterLimit,numberOfPlanets):
-    spacing =[]
-    rangeOfOrbit = orbitalOuterLimit - orbitalInnerLimit
-    step = rangeOfOrbit / (numberOfPlanets + 1)
-    for i in range(1, int(numberOfPlanets) + 1):
-        spacing.append(orbitalInnerLimit + step * i)
-    return spacing
+    spacing = []
+    if orbitalInnerLimit <= 0 or orbitalOuterLimit <= 0 or numberOfPlanets < 1:
+        raise ValueError("Number of planets must be at least 1.")
+    log_inner = math.log10(orbitalInnerLimit)
+    log_outer = math.log10(orbitalOuterLimit)
+    log_step = (log_outer - log_inner) / (numberOfPlanets + 1)
+    
+    for i in range(1, numberOfPlanets + 1):
+        log_distance = log_inner + log_step * i
+        spacing.append(10 ** log_distance)
+    
+    return spacing    
+    
 
-#def Habitable(orbitalSpacingList, habitableZoneInner, habitableZoneOuter):
-    #for i in range(1, len(orbitalSpacingList)):
-        #if habitableZoneInner < orbitalSpacingList[i] < habitableZoneOuter:
-            #isHabitable = True
-        #else:
-            #isHabitable = False
-    #return isHabitable
+
 
 class SolarSystem:
     def __init__(self, star):
@@ -47,7 +49,8 @@ class SolarSystem:
         self.orbitalOuterLimitAU = orbitalOuterLimit(self.star.starMassSolarMass)
         self.numberOfPlanets = int(numberOfPlanets(self.orbitalInnerLimitAU, self.orbitalOuterLimitAU))
         self.orbitalSpacing = orbitalSpacing(self.orbitalInnerLimitAU, self.orbitalOuterLimitAU, self.numberOfPlanets)
-        #self.isHabitable = Habitable(self.orbitalSpacing, self.habitableZoneInnerAU, self.habitableZoneOuterAU)
+        self.systemName = stellarName()
+        self.solarSystemHabitable = solarSystemHabitable
         
         for i in range(self.numberOfPlanets):
             planet = Planet(self, self.star)
@@ -61,5 +64,6 @@ class SolarSystem:
             "orbitalOuterLimitAU": self.orbitalOuterLimitAU,
             "numberOfPlanets": self.numberOfPlanets,
             "orbitalSpacing": self.orbitalSpacing,
-            #"Habitable": self.isHabitable
+            "systemName": self.systemName,
+            "solarSystemHabitable": self.solarSystemHabitable,
         }
