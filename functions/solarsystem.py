@@ -2,6 +2,7 @@
 import math
 from .star import Star
 from .planet import Planet
+import random
 
 def habitableZoneInner(starLuminositySolarLuminositys):
     return 0.95*starLuminositySolarLuminositys
@@ -16,7 +17,9 @@ def orbitalOuterLimit(starMassSolarMass):
     return 2*(starMassSolarMass**(1/3))*100
 
 def numberOfPlanets(orbitalInnerLimit, orbitalOuterLimit):
-    return round((math.log(orbitalOuterLimit) - math.log(orbitalInnerLimit)) / 1.7, 0)
+    baseNumber = round((math.log(orbitalOuterLimit) - math.log(orbitalInnerLimit)) / 1.2, 0)
+    offset = random.randint(-2, 3)
+    return max(1, min(12,round(baseNumber + offset, 0)))
 
 def orbitalSpacing(orbitalInnerLimit, orbitalOuterLimit,numberOfPlanets):
     spacing =[]
@@ -50,6 +53,13 @@ class SolarSystem:
             planet = Planet(self, self.star)
             self.planets.append(planet)
         
-    def print_all(self):
-        for attr, value in self.__dict__.items():
-            print(f"{attr}: {value}")
+    def to_dict(self):
+        return {
+            "habitableZoneInnerAU": self.habitableZoneInnerAU,
+            "habitableZoneOuterAU": self.habitableZoneOuterAU,
+            "orbitalInnerLimitAU": self.orbitalInnerLimitAU,
+            "orbitalOuterLimitAU": self.orbitalOuterLimitAU,
+            "numberOfPlanets": self.numberOfPlanets,
+            "orbitalSpacing": self.orbitalSpacing,
+            #"Habitable": self.isHabitable
+        }

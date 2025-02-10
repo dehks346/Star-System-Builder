@@ -1,6 +1,7 @@
 #star.py
 import random
 import math
+from .utils import stellarName
 
 #Generates the stars stellar mass in solar mass units
 def starMass(lowestSolarMass, highestSolarMass, roundedTo):
@@ -48,6 +49,23 @@ def starChromaticity(starMassSolarMass):
         return {"R":"250","G":"236","B":"226"}
     elif 2.1 <= starMassSolarMass < 16:
         return {"R":"240","G":"211","B":"179"}
+    
+def starType(starMassSolarMass):
+    if 0.08 < starMassSolarMass < 0.45:
+        return "M"
+    elif 0.45 <= starMassSolarMass < 0.8:
+        return "K"
+    elif 0.8 <= starMassSolarMass < 1.04:
+        return "G"
+    elif 1.04 <= starMassSolarMass <1.4:
+        return "F"
+    elif 1.4 <= starMassSolarMass < 2.1:
+        return "A"
+    elif 2.1 <= starMassSolarMass < 16:
+        return "B"
+    elif 16 <= starMassSolarMass < 120:
+        return "O"
+    
 
 class Star:
     def __init__(self):
@@ -75,10 +93,35 @@ class Star:
         self.starLuminosityJoules = self.starLuminosityWatts
         self.starLifespan = starLifespan(self.starMassSolarMass, 0)
         self.starChromaticityRGB = starChromaticity(self.starMassSolarMass)
+        self.starName = stellarName()
+        self.starType = starType(self.starMassSolarMass)
     
-    def printStarInfo(self):
-        print("Star Mass "+ str(self.starMassSolarMass)+" M")
-        print("Star Radius"+str(self.starRadiusSolarRadii)+ " R")
-        print("Star Temperature"+str(self.starTemperatureKelvin) +" K")
-        print("Star Luminosity"+str(self.starLuminositySolarLuminosity) +" L")
-        print("Star Lifespan"+str(self.starLifespan)+" years")
+    def to_dict(self):
+        return {
+            "StarMassSolarMass": self.starMassSolarMass,
+            "StarMassKilogram": self.starMassKilogram,
+            "StarMassPound": self.starMassPound,
+            "StarMassTonne": self.starMassTonne,
+            "StarRadiusSolarRadii": self.starRadiusSolarRadii,
+            "StarRadiusMeter": self.starRadiusMeter,
+            "StarRadiusMile": self.starRadiusMile,
+            "StarRadiusKilometer": self.starRadiusKilometer,
+            "StarRadiusEarthRadius": self.starRadiusEarthRadius,
+            "StarRadiusAstronomicalUnit": self.starRadiusAstronomicalUnit,
+            "StarDiameterSolarRadii": self.starDiameterSolarRadii,
+            "StarDiameterMeter": self.starDiameterMeter,
+            "StarDiameterMile": self.starDiameterMile,
+            "StarDiameterKilometer": self.starDiameterKilometer,
+            "StarDiameterEarthRadius": self.starDiameterEarthRadius,
+            "StarDiameterAstronomicalUnit": self.starDiameterAstronomicalUnit,
+            "StarTemperatureKelvin": self.starTemperatureKelvin,
+            "StarTemperatureCelsius": self.starTemperatureCelsius,
+            "StarTemperaturefahrenheit": self.starTemperaturefahrenheit,
+            "StarLuminositySolarLuminosity": self.starLuminositySolarLuminosity,
+            "StarLuminosityWatts": self.starLuminosityWatts,
+            "StarLuminosityJoules": self.starLuminosityJoules,
+            "StarLifespan": self.starLifespan,
+            "StarChromaticityRGB": self.starChromaticityRGB,
+            "starName": self.starName,
+            "starType": self.starType,
+        }

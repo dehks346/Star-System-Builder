@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Solar System Data</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <header>
+        <div style="text-align: center">
+            <h1>Star System Builder</h1>
+            <h3>Developed by <span style="text-decoration: underline;">Dehks346</span></h3>
+        </div>
+    </header>
+    <section>
+        <div class="solar-system-container">
+            <div class="top">
+                <h3>Solar System Name</h3>
+            </div>
+            <div class="bottom">
+                <h3>Number of Planets: {{ solarSystem['numberOfPlanets']}} </h3> <h3>Orbital Limit: {{ solarSystem["orbitalOuterLimitAU"]}}</h3>
+            </div>
+        </div>
+    </section>
+    <section class="star-planet-container">
+        <div class="planet-container">
+            <div class="planet-image-container">
+                <img src="/static/star.jpg" class="planet-image" alt="">
+            </div>
+            <div class="planet-stats-container">
+                <h3>Star Name: {{ star['starName']}} </h3>
+                <h3>Star Type: {{ star['starType']}} </h3>
+                <h3>Star Mass: {{ star['StarMassSolarMass']}} M☉</h3>
+                <h3>Star Radius: {{ star['StarRadiusSolarRadii']}} R☉</h3>
+                <h3>Star Diameter: {{ star['StarDiameterSolarRadii']}} R☉</h3>
+                <h3>Star Temperature: {{ star['StarTemperatureKelvin']}} K</h3>
+                <h3>Star Luminosity: {{ star['StarLuminositySolarLuminosity']}} L☉</h3>
+                <h3>Star Lifespan: {{ star['StarLifespan']}} years</h3>
+                <h3>Star Chromaticity: {{ star['StarChromaticityRGB']}}</h3>
+            </div>
+            <div class="planet-description-container">
+                <h3>
+                Star Description: Lorem ipsum dolor sit amet consectetur adipisicing elit. Dolore, voluptate nemo vel sapiente nihil ullam praesentium! Temporibus, ab error officia impedit tempora veniam quis ullam delectus optio facere voluptates ea.
+                Quasi, nemo! Laudantium delectus, cupiditate labore consequatur hic nihil quae cumque magnam rem dicta reiciendis optio tenetur eveniet nobis beatae reprehenderit laborum voluptatem ad, nam deserunt enim libero? Iure, exercitationem.
+                </h3>
+            </div>
+        </div>
+    {% for planet in planet_data %}
+    <div class="planet-container">
+        <div class="planet-image-container">
+            <img src="{{planet['planetPicture']}}" alt="" class="planet-image">
+        </div>
+        <div class="planet-stats-container">
+                <h3>Planet Name: {{ planet['planetName']}}</h3>
+                <h3>Planet Type: {{ planet['planetType']}} </h3>
+                <h3>Planet Mass: {{ planet['planetMassEarthMasses']}} M🜨</h3>
+                <h3>Planet Radius: {{ planet['planetRadiusEarthRadii']}} R🜨</h3>
+                <h3>Planet Diameter: {{ planet['planetDiameterEarthRadii']}} R🜨</h3>
+                <h3>Planet Surface Gravity: {{ planet['planetSurfaceGravity']}} m/s²</h3>
+                <h3>Planet Temperature: {{ planet['planetTemperatureCelsius']}} °C</h3>
+                <h3>Planet Atmospheric Composition: {{ planet['planetAtmosphereComposition']}} </h3>
+                <h3>Planet Axial Tilt: {{ planet['planetAxialTilt']}}°</h3>
+                <h3>Planet Orbital Period: {{ planet['planetOrbitalPeriod']}}</h3>
+                <h3>Planet Orbital Distance: {{ planet['planetOrbitalPosition']}} AU</h3>
+                <h3>Planet Day Length: {{ planet['planetDayLength']}} hours</h3>
+                <h3>Planet Surface Water: {{ planet['planetSurfaceWater']}}%</h3>
+        </div>
+        <div class="planet-description-container">
+            <h3>
+            Planet Description: {{ planet['planetDescription']}}
+            </h3>
+        </div>
+    </div>
+    {% endfor %}
+    </section>
+</body>
+</html>
