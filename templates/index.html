@@ -7,38 +7,43 @@
     <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
-    <header>
+    <header class="centered">
         <div style="text-align: center">
             <h1>Star System Builder</h1>
-            <h3>Developed by <span style="text-decoration: underline;">Dehks346</span></h3>
+            <h3>Developed by <span style="text-decoration: underline;"><a href=""><a href="https://github.com/dehks346">Dehks346</a></span></h3>
         </div>
     </header>
-    <section>
-        <div class="solar-system-container">
-            <div class="top">
-                <h3>The {{ solarSystem['systemName']}} System, Habitable? {{ solarSystem['solarSystemHabitable']}}</h3>
+    <section class="other-section">
+        <div class="button-container centered">
+            <button class="restart-button" type="button" onClick="window.location.reload();" >🔄</button>
+            <button id="download-button" class="download-button">💾</button>
+            <script>
+                document.getElementById("download-button").addEventListener("click", function() {
+                    window.location.href = "/download";
+                });
+            </script>
+        </div>
+        <div class="solar-system-stat-container">
+            <div class="solar-system-name">
+                <h2>The {{ solarSystem['systemName']}} System</h2>
             </div>
-            <div class="bottom">
-                <h3>Number of Planets: {{ solarSystem['numberOfPlanets']}} </h3> <h3>Orbital Limit: {{ solarSystem["orbitalOuterLimitAU"]}}</h3>
+            <div class="solar-system-stats">
+                <h3>Number of Planets: {{ solarSystem['numberOfPlanets']}} </h3> <h3>Habitable: {{ solarSystem['isHabitable']}}</h3> <h3>Orbitalal Limit: {{ solarSystem["orbitalOuterLimitAU"]}} AU</h3>
             </div>
         </div>
-        <div class="system-diagram-container">
-            <div class="system-diagram">
-                <img src="{{ star['starPicture']}}" alt="" class="system-diagram-star">
+        <div class="solar-system-diagram-container centered">
+            <div class="solar-system-diagram centered soft-edges"> 
+                <img src="{{ star['starPicture']}}" alt="" class="solar-system-diagram-star">
                 {% for planet in planet_data %}
-                <img src="{{ planet['planetPicture']}}" class="planet-image system-diagram-planet" alt="">
+                <img src="{{ planet['planetPicture']}}" class="solar-system-diagram-planet" alt="">
                 {% endfor %}
-                
             </div>
-
         </div>
-    </section>
-    <section class="star-planet-container">
-        <div class="planet-container">
-            <div class="planet-image-container">
-                <img src="{{ star['starPicture']}}" class="planet-image" alt="">
+        <div class="star-container smooth-edges">
+            <div class="star-image-container centered">
+                <img src="{{ star['starPicture']}}" class="star-image" alt="">
             </div>
-            <div class="planet-stats-container">
+            <div class=" centered star-stats">
                 <h3>Star Name: {{ star['starName']}} </h3>
                 <h3>Star Type: {{ star['starType']}} </h3>
                 <h3>Star Mass: {{ star['StarMassSolarMass']}} M☉</h3>
@@ -47,37 +52,32 @@
                 <h3>Star Temperature: {{ star['StarTemperatureKelvin']}} K</h3>
                 <h3>Star Luminosity: {{ star['StarLuminositySolarLuminosity']}} L☉</h3>
                 <h3>Star Lifespan: {{ star['StarLifespan']}} years</h3>
-                <h3>Star Chromaticity: {{ star['StarChromaticityRGB']}}</h3>
             </div>
-            <div class="planet-description-container">
+            <div class="star-description centered">
                 <h3>
                 Star Description: Lorem ipsum dolor sit amet consectetur adipisicing elit. Dolore, voluptate nemo vel sapiente nihil ullam praesentium! Temporibus, ab error officia impedit tempora veniam quis ullam delectus optio facere voluptates ea.
                 Quasi, nemo! Laudantium delectus, cupiditate labore consequatur hic nihil quae cumque magnam rem dicta reiciendis optio tenetur eveniet nobis beatae reprehenderit laborum voluptatem ad, nam deserunt enim libero? Iure, exercitationem.
                 </h3>
             </div>
         </div>
+    </section>
+    <section class="planet-section">
     {% for planet in planet_data %}
-    <div class="planet-container">
-        <div class="planet-image-container">
+    <div class="planet-container smooth-edges">
+        <div class="planet-image-container centered">
             <img src="{{planet['planetPicture']}}" alt="" class="planet-image">
         </div>
-        <div class="planet-stats-container">
+        <div class="planet-stats centered">
                 <h3>Planet Name: {{ planet['planetName']}}</h3>
                 <h3>Planet Type: {{ planet['planetType']}} </h3>
                 <h3>Planet Mass: {{ planet['planetMassEarthMasses']}} M🜨</h3>
                 <h3>Planet Radius: {{ planet['planetRadiusEarthRadii']}} R🜨</h3>
-                <h3>Planet Diameter: {{ planet['planetDiameterEarthRadii']}} R🜨</h3>
                 <h3>Planet Surface Gravity: {{ planet['planetSurfaceGravity']}} m/s²</h3>
                 <h3>Planet Temperature: {{ planet['planetTemperatureCelsius']}} °C</h3>
-                <h3>Planet Atmospheric Composition: {{ planet['planetAtmosphereComposition']}} </h3>
-                <h3>Planet Axial Tilt: {{ planet['planetAxialTilt']}}°</h3>
-                <h3>Planet Orbital Period: {{ planet['planetOrbitalPeriod']}} earth years</h3>
                 <h3>Planet Orbital Distance: {{ planet['planetOrbitalPositionAU']}} AU</h3>
-                <h3>Planet Day Length: {{ planet['planetDayLength']}} hours</h3>
-                <h3>Planet Surface Water: {{ planet['planetSurfaceWater']}}%</h3>
                 <h3>Planet Habitable: {{ planet['planetHabitable'] }}</h3>
         </div>
-        <div class="planet-description-container">
+        <div class="planet-description">
             <h3>
             Planet Description: {{ planet['planetDescription']}}
             </h3>
@@ -85,5 +85,8 @@
     </div>
     {% endfor %}
     </section>
+    <footer class="centered">
+        © Dehks346 2025 All rights reserved
+    </footer>
 </body>
 </html>

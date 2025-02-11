@@ -1,10 +1,14 @@
 #planet.py
 from .star import Star
-from .utils import HabitableZoneUnit, stellarName, solarSystemHabitable
+from .utils import HabitableZoneUnit, stellarName
 import random
 import math
 
+
+systemHabitable = False
 gravitationalConstant = 6.67430e-11 
+STEFAN_BOLTZMANN = 5.670374419e-8
+
 
 def allocateOrbitalPosition(solarSystem):
     planet_count = len(solarSystem.planets)
@@ -13,12 +17,6 @@ def allocateOrbitalPosition(solarSystem):
         raise IndexError ("Not enough orbital slots")
     
     return solarSystem.orbitalSpacing[planet_count]
-    
-def isHabitable(innerHabitableZoneAU, outerHabitableZoneAU, orbitalPosition):
-    if int(innerHabitableZoneAU) < int(orbitalPosition) < int(outerHabitableZoneAU):
-        return True
-    else:
-        return False
     
 def planetType(HZU):
     if HZU < 0.2:
@@ -87,77 +85,23 @@ def planetAlbedo(planetType):
     }
     return albedo_dict.get(planetType, 0.3)
 
-def planetTemperature(starLuminosityWatts, planetType, planetOrbitalDistanceMeter, planetAtmosphereComposition):
-    if planetType == "Lava Planet":
-        return random.uniform(1200, 3000)
+def planetTemperature(starLuminosityWatts, planetOrbitalDistanceMeter):
+    # Use the Stefan-Boltzmann law to calculate the equilibrium temperature of the planet.
+    # Stefan-Boltzmann law: T^4 = L / (16 * pi * d^2 * sigma)
+    # Where:
+    #   T = equilibrium temperature of the planet (Kelvin)
+    #   L = luminosity of the star (Watts)
+    #   d = distance of the planet from the star (meters)
+    #   sigma = Stefan-Boltzmann constant (W/m^2/K^4)
 
-    albedo = planetAlbedo(planetType)
-    sigma = 5.67e-8  # Stefan-Boltzmann constant
-    
-    temperatureKelvin = (( (1 - albedo) * starLuminosityWatts) / (16 * math.pi * sigma * (planetOrbitalDistanceMeter**2)))**0.25
+    # Calculate the flux at the planet's distance (energy received per unit area)
+    flux = starLuminosityWatts / (4 * math.pi * (planetOrbitalDistanceMeter ** 2))
 
-    greenhouseMultiplier = 1.2 if "CO2" in planetAtmosphereComposition else 1.0
-    temperatureKelvin *= greenhouseMultiplier
+    # Calculate the equilibrium temperature in Kelvin using the flux
+    temp_kelvin = (flux / STEFAN_BOLTZMANN) ** 0.25
+
+    return (temp_kelvin - 80)
     
-    return temperatureKelvin
-    
-def planetAtmosphereComposition(planetType):
-    if planetType == "Lava Planet":
-        return  ["CO2", "SO2", "H2O"]
-    elif planetType == "Rocky Planet":
-        return  ["CO2", "O2", "N2"]
-    elif planetType == "Desert Planet":
-        return  ["CO2", "O2"]
-    elif planetType == "Ocean Planet":
-        return  ["H20", "O2", "N2"]
-    elif planetType == "Super Earth":
-        return  ["CO2", "N2", "O2"]
-    elif planetType == "Mini Neptune":
-        return  ["H2", "He", "CH4"]
-    elif planetType == "Ice Giant":
-        return  ["H20", "CH4", "NH3"]
-    elif planetType == "Gas Giant":
-        return  ["H2", "He", "CH4"]
-    elif planetType == "Brown Dwarf":
-        return  ["H", "He"]
-        
-    
-def planetSurfaceWater(planetRadiusMeter, planetType, planetTemperatureKelvin):
-        planetSurfaceAreaMeters = 4 * math.pi * planetRadiusMeter**2
-        
-        if planetType == "Lava Planet":
-            return 0
-        elif planetType == "Ocean Planet" and 273 <= planetTemperatureKelvin <= 373:
-            waterPercentage = 0.75
-        elif planetType == "Rocky Planet" and 273 <= planetTemperatureKelvin <= 373:
-            waterPercentage = 0.3
-        elif planetType == "Super Earth" and 273 <= planetTemperatureKelvin <= 373:
-            waterPercentage = 0.4
-        else:
-            waterPercentage = 0.0
-        print(waterPercentage)
-        print(planetSurfaceAreaMeters)
-        
-        return planetSurfaceAreaMeters * waterPercentage
-        
-    
-    #def planetMoons():
-    
-def planetOrbitalPeriod(planetOrbitalPositionAU, starMassKilogram):
-    orbitalPeriodEarthYears = planetOrbitalPositionAU**3
-    return math.sqrt(orbitalPeriodEarthYears)
-        
-def planetDayLength(planetRadiusMeter, planetMassKilogram):
-        if planetType == "Lava Planet":
-            return random.uniform(0.5, 20)
-        Inertia = (2/5) * planetMassKilogram * planetRadiusMeter**2
-        
-        omega = 2 * math.pi / 86400
-        L = Inertia * omega
-        
-        dayLengthSeconds = (2 * math.pi * Inertia) / L
-        return dayLengthSeconds / 3600
-        
 def planetAxialTilt(planetType):
         if planetType == "Lava Planet":
             return random.uniform(20, 90)
@@ -191,7 +135,7 @@ def planetPicutre(brownDwarf, desertPlanet, gasGiant, iceGiant, miniNeptune, oce
         return lavaPlanet
     
 
-def planetDescription(planetType, planetTemperatureKelvin, planetSurfaceWater, planetAtmosphereComposition, planetSurfaceGravityEarthGravity, planetDayLength, planetOrbitalPeriod, planetAxialTilt, planetMassEarthMasses, planetRadiusEarthRadii):
+def planetDescription(planetType, planetTemperatureKelvin, planetSurfaceGravityEarthGravity, planetAxialTilt):
     description = ""
     if planetType == "Lava Planet":
         description = "The surface is mostly covered in molten lava. "
@@ -221,50 +165,12 @@ def planetDescription(planetType, planetTemperatureKelvin, planetSurfaceWater, p
     elif planetTemperatureKelvin > 1000:
         description = description + "The temperature is extremely hot, survival of life would be impossible. "
     
-    if planetSurfaceWater > 0:
-        description = description + "The oceans are little to nothing. "
-    elif planetSurfaceWater > 25:
-        description = description + "there are large oceans. "
-    elif planetSurfaceWater > 50:
-        description = description + "there is huge oceans. "
-    elif planetSurfaceWater > 75:
-        description = description + "Water covers most of the planet. "
-    
-    if planetAtmosphereComposition == ["CO2", "SO2", "H2O"]:
-        description = description + "The atmosphere is composed of carbon dioxide, sulfur dioxide and water vapor. "
-    elif planetAtmosphereComposition == ["CO2", "O2", "N2"]:
-        description = description + "The atmosphere is composed of carbon dioxide, oxygen and nitrogen. "
-    elif planetAtmosphereComposition == ["CO2", "O2"]:
-        description = description + "The atmosphere is composed of carbon dioxide and oxygen. "
-    elif planetAtmosphereComposition == ["H20", "O2", "N2"]:
-        description = description + "The atmosphere is composed of water vapor, oxygen and nitrogen. "
-    elif planetAtmosphereComposition == ["CO2", "N2", "O2"]:
-        description = description + "The atmosphere is composed of carbon dioxide, nitrogen and oxygen. "
-    elif planetAtmosphereComposition == ["H2", "He", "CH4"]:
-        description = description + "The atmosphere is composed of hydrogen, helium and methane. "
-    elif planetAtmosphereComposition == ["H20", "CH4", "NH3"]:
-        description = description + "The atmosphere is composed of water vapor, methane and ammonia. "
-    
     if planetSurfaceGravityEarthGravity < 0.5:
         description = description + "The surface gravity is very low. "
     elif 0.5 <= planetSurfaceGravityEarthGravity <= 1.5:
         description = description + "The surface gravity is similar to earth. "
     elif planetSurfaceGravityEarthGravity > 1.5:
         description = description + "The surface gravity is very high. "
-    
-    if planetDayLength < 24:
-        description = description + "The day length is very short. "
-    elif 24 <= planetDayLength <= 48:
-        description = description + "The day length is similar to earth. "
-    elif planetDayLength > 48:
-        description = description + "The day length is very long. "
-    
-    if planetOrbitalPeriod < 365:
-        description = description + "The orbital period is very short. "
-    elif 365 <= planetOrbitalPeriod <= 730:
-        description = description + "The orbital period is similar to earth. "
-    elif planetOrbitalPeriod > 730:
-        description = description + "The orbital period is very long. "
         
     if planetAxialTilt < 30:
         description = description + "The seaons are standard "
@@ -275,14 +181,15 @@ def planetDescription(planetType, planetTemperatureKelvin, planetSurfaceWater, p
 
     return description
 
-def Habitable(orbitalSpacingList, habitableZoneInner, habitableZoneOuter, solarSystemHabitableV):
+def Habitable(orbitalSpacingList, habitableZoneInner, habitableZoneOuter):
         if habitableZoneInner < orbitalSpacingList < habitableZoneOuter:
-            solarSystemHabitableV = True
             return True
         else:
             return False
 
 class Planet:
+
+        
         
     def __init__(self,solarSystem, star):
         self.solarSystem = solarSystem
@@ -292,7 +199,6 @@ class Planet:
         self.planetOrbitalPositionMeter = self.planetOrbitalPositionAU * 1.496e11
         self.HZU = HabitableZoneUnit(solarSystem.habitableZoneInnerAU, self.planetOrbitalPositionAU)
         self.planetType = planetType(self.HZU)
-        self.planetAtmosphereComposition = planetAtmosphereComposition(self.planetType)
         self.planetRadiusEarthRadii = planetRadius(self.planetType)
         self.planetRadiusSolarRadii = self.planetRadiusEarthRadii * 6371 / 695700
         self.planetRadiusMeter = self.planetRadiusSolarRadii * 695700000
@@ -310,17 +216,14 @@ class Planet:
         self.planetMassTonne = self.planetMassKilogram / 1000
         self.planetSurfaceGravity = planetSurfaceGravity(self.planetMassKilogram, self.planetRadiusMeter)
         self.planetSurfaceGravityEarthGravity = self.planetSurfaceGravity/9.8
-        self.planetTemperatureKelvin = planetTemperature(self.star.starLuminosityWatts, self.planetType, self.planetOrbitalPositionMeter, self.planetAtmosphereComposition) 
+        self.planetTemperatureKelvin = planetTemperature(self.star.starLuminosityWatts, self.planetOrbitalPositionMeter)
         self.planetTemperatureCelsius = self.planetTemperatureKelvin - 273.15
         self.planetTemperatureFahrenheit = (self.planetTemperatureCelsius * 9/5) + 32
         self.planetAxialTilt = planetAxialTilt(self.planetType)
-        self.planetOrbitalPeriod = planetOrbitalPeriod(self.planetOrbitalPositionAU, self.star.starMassKilogram)
-        self.planetDayLength = planetDayLength(self.planetRadiusMeter, self.planetMassKilogram)
-        self.planetSurfaceWater = planetSurfaceWater(self.planetRadiusMeter, self.planetType, self.planetTemperatureKelvin)
         self.planetPicutre = planetPicutre("/static/brownDwarf.png", "/static/desertPlanet.png", "/static/gasGiant.png", "/static/iceGiant.png", "/static/miniNeptune.png", "/static/oceanPlanet.png", "/static/rockyPlanet.png", "/static/superEarth.png", "/static/lavaPlanet.png",self.planetType)
-        self.planetDescription = planetDescription(self.planetType, self.planetTemperatureKelvin, self.planetSurfaceWater, self.planetAtmosphereComposition, self.planetSurfaceGravityEarthGravity, self.planetDayLength, self.planetOrbitalPeriod, self.planetAxialTilt, self.planetMassEarthMasses, self.planetRadiusEarthRadii)
+        self.planetDescription = planetDescription(self.planetType, self.planetTemperatureKelvin, self.planetSurfaceGravityEarthGravity, self.planetAxialTilt)
         self.planetName = stellarName()
-        self.planetHabitable = Habitable(self.planetOrbitalPositionAU, self.solarSystem.habitableZoneInnerAU, self.solarSystem.habitableZoneOuterAU, solarSystemHabitable)
+        self.planetHabitable = Habitable(self.planetOrbitalPositionAU, self.solarSystem.habitableZoneInnerAU, self.solarSystem.habitableZoneOuterAU)
         
     def to_dict(self):
         return {
@@ -349,11 +252,7 @@ class Planet:
             "planetTemperatureKelvin": self.planetTemperatureKelvin,
             "planetTemperatureCelsius": self.planetTemperatureCelsius,
             "planetTemperatureFahrenheit": self.planetTemperatureFahrenheit,
-            "planetAtmosphereComposition": self.planetAtmosphereComposition,
             "planetAxialTilt": self.planetAxialTilt,
-            "planetOrbitalPeriod": self.planetOrbitalPeriod,
-            "planetDayLength": self.planetDayLength,
-            "planetSurfaceWater": self.planetSurfaceWater, 
             "planetPicture": self.planetPicutre,
             "planetDescription": self.planetDescription,
             "planetName": self.planetName,

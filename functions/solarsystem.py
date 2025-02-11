@@ -2,14 +2,14 @@
 import math
 from .star import Star
 from .planet import Planet
-from .utils import stellarName, solarSystemHabitable
+from .utils import stellarName
 import random
 
 def habitableZoneInner(starLuminositySolarLuminositys):
-    return 0.95*starLuminositySolarLuminositys
+    return math.sqrt(starLuminositySolarLuminositys / 1.1)
 
 def habitableZoneOuter(starLuminositySolarLuminositys):
-    return 1.37*starLuminositySolarLuminositys
+    return math.sqrt(starLuminositySolarLuminositys / 0.53)
 
 def orbitalInnerLimit(starRadiusSolarRadii):
     return 0.1*starRadiusSolarRadii
@@ -35,7 +35,13 @@ def orbitalSpacing(orbitalInnerLimit, orbitalOuterLimit,numberOfPlanets):
         spacing.append(10 ** log_distance)
     
     return spacing    
-    
+
+def generateHabitableSystem(star, maxAttempts=1000):
+    for x in range(maxAttempts):
+        solarSystem = SolarSystem(star)
+        if solarSystem.isHabitable:
+            return solarSystem
+    raise ValueError("Could not generate a habitable system after {} attempts".format(maxAttempts))
 
 
 
@@ -50,11 +56,13 @@ class SolarSystem:
         self.numberOfPlanets = int(numberOfPlanets(self.orbitalInnerLimitAU, self.orbitalOuterLimitAU))
         self.orbitalSpacing = orbitalSpacing(self.orbitalInnerLimitAU, self.orbitalOuterLimitAU, self.numberOfPlanets)
         self.systemName = stellarName()
-        self.solarSystemHabitable = solarSystemHabitable
         
         for i in range(self.numberOfPlanets):
             planet = Planet(self, self.star)
             self.planets.append(planet)
+            
+        self.isHabitable = any(planet.planetHabitable for planet in self.planets)
+
         
     def to_dict(self):
         return {
@@ -65,5 +73,5 @@ class SolarSystem:
             "numberOfPlanets": self.numberOfPlanets,
             "orbitalSpacing": self.orbitalSpacing,
             "systemName": self.systemName,
-            "solarSystemHabitable": self.solarSystemHabitable,
+            "isHabitable": self.isHabitable
         }

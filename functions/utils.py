@@ -1,8 +1,6 @@
 #utils.py
 import random
 
-solarSystemHabitable = False
-
 def HabitableZoneUnit(innerHabitabilityZoneAU, OrbitalDistanceAU):
     return OrbitalDistanceAU/innerHabitabilityZoneAU
     

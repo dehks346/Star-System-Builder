@@ -85,7 +85,7 @@ def starPicture(starType, mStar, kStar, gStar, fStar, aStar, bStar, oStar):
 
 class Star:
     def __init__(self):
-        self.starMassSolarMass = starMass(0.08, 8.0, 3)
+        self.starMassSolarMass = starMass(0.9, 1.1, 3)
         self.starMassKilogram = self.starMassSolarMass*2000000000000000000000000000000
         self.starMassPound = self.starMassKilogram*2.20462
         self.starMassTonne = self.starMassKilogram/1000
